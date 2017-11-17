@@ -44,6 +44,30 @@ frequency is set through a new Kubelet configuration value
 `--cpu-manager-reconcile-period`. If not specified, it defaults to the same
 duration as `--node-status-update-frequency`.
 
+### State file
+
+State file is used to preserve CPU Manager configurations across Kubelet restarts.
+File contains following data:
+
+* policy name
+* default CPUSet
+* containers and CPUs assignments
+
+Default state file localization is `/var/lib/kubelet/cpu_manager_state`. File
+directory depends on the `--root-dir` kubelet option.
+
+**Note:** This file should never be changed manually.
+{: .note}
+
+**Note:** Changes in CPU Manager policy, `--kube-reserved` or `--system-reserved`
+options, require the following step first in order to avoid
+CPUSet configuration leakage:
+
+* node draining
+* removal of state file manually
+
+{: .note}
+
 ### None policy
 
 The `none` policy explicitly enables the existing default CPU
@@ -63,6 +87,10 @@ using the [cpuset cgroup controller](https://www.kernel.org/doc/Documentation/cg
 
 **Note:** The alpha version of this policy does not guarantee static
 exclusive allocations across Kubelet restarts.
+{: .note}
+
+**Note:** The beta version of this policy (available in Kubernetes 1.9) guarantee
+static exclusive allocations across Kubelet restarts. More information available in [State file section](#state-file)
 {: .note}
 
 This policy manages a shared pool of CPUs that initially contains all CPUs in the
